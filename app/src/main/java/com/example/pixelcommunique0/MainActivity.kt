@@ -1,5 +1,7 @@
 package com.example.pixelcommunique0
 
+import com.google.android.gms.nearby.connection.Payload
+import com.google.android.gms.nearby.connection.PayloadTransferUpdate
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
