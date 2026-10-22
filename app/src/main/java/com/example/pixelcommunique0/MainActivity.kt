@@ -1,4 +1,4 @@
-package com.example.pixelcommunique0
+package com.exemple.pixelcommunique0
 
 import android.Manifest
 import android.content.pm.PackageManager
