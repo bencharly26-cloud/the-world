@@ -1,14 +1,17 @@
-package com.example.pixelcommunique0
-
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import android.widget.TextView
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val text = TextView(this)
-        text.text = "Test de démarrage OK"
-        setContentView(text)
+        setContentView(R.layout.activity_main) // <-- On charge le layout XML
+        
+        webView = findViewById(R.id.webView) // <-- On récupère la WebView du XML
+        webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+        webView.webChromeClient = WebChromeClient()
+        webView.webViewClient = WebViewClient()
+        webView.addJavascriptInterface(AndroidBridge(), "Android")
+        webView.loadUrl("file:///android_asset/index.html")
+
+        val missing = neededPermissions().filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isNotEmpty()) ActivityCompat.requestPermissions(this, missing.toTypedArray(), requestCode)
     }
-}
