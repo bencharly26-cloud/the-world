@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Le vrai bouton natif Android positionné en haut à droite -->
+    <!-- Le bouton natif Android positionné en haut à droite -->
     <Button
         android:id="@+id/btnMenu"
         android:layout_width="48dp"
