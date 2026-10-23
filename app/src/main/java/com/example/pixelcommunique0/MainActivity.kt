@@ -145,10 +145,10 @@ class MainActivity : ComponentActivity() {
                 .addOnSuccessListener {
                     js("systemMessage('Recherche des appareils à proximité démarrée...')")
                 }
-                .addOnFailureListener {
+                .addOnFailureListener { e ->
                     scanStarted = false
                     js("scanState(false)")
-                    js("systemMessage('La recherche a échoué.')")
+                    js("systemMessage('Échec recherche : ' + ${quote(e.localizedMessage ?: "Inconnu")})")
                 }
         }, 300)
     }
@@ -177,10 +177,10 @@ class MainActivity : ComponentActivity() {
                 .addOnSuccessListener {
                     js("systemMessage('Visibilité activée (en attente de connexion)...')")
                 }
-                .addOnFailureListener {
+                .addOnFailureListener { e ->
                     scanStarted = false
                     js("scanState(false)")
-                    js("systemMessage('La visibilité de cet appareil a échoué.')")
+                    js("systemMessage('Échec visibilité : ' + ${quote(e.localizedMessage ?: "Inconnu")})")
                 }
         }, 300)
     }
