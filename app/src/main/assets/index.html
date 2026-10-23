@@ -138,9 +138,12 @@ function recordingChanged(on){
 }
 
 // Gestion de l'affichage du menu déroulant ☰
-phantomBtn.addEventListener('click',(e)=>{
-  e.stopPropagation();
-  menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
+phantomBtn.addEventListener('click', () => {
+  if (isAndroidApp) {
+    Android.showMenu();
+  } else {
+    alert("Menu simulé (Mode navigateur)");
+  }
 });
 
 // Fermer le menu si on clique ailleurs
