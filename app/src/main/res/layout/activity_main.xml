@@ -1,24 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Ton WebView d'origine -->
+    <!-- La WebView en arrière-plan -->
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Le bouton Menu (les trois traits) qui flotte en haut à droite -->
+    <!-- Le vrai bouton natif Android positionné en haut à droite -->
     <Button
         android:id="@+id/btnMenu"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="top|end"
-        android:layout_margin="16dp"
+        android:layout_margin="8dp"
+        android:backgroundTint="#005c4b"
+        android:textColor="#e9edef"
         android:text="☰"
-        android:textSize="22sp"
-        android:backgroundTint="#00FF00"
-        android:textColor="#000000" />
+        android:textSize="18sp" />
 
 </FrameLayout>
