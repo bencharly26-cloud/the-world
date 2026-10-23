@@ -76,6 +76,7 @@ class MainActivity : ComponentActivity() {
     }
 
     inner class AndroidBridge {
+        @JavascriptInterface fun showMenu() { runOnUiThread { showActionDialog() } }
         @JavascriptInterface fun startScan() { runOnUiThread { beginDiscoveryAndAdvertising() } }
         @JavascriptInterface fun stopScan() { runOnUiThread { stopDiscoveryAndAdvertising() } }
         @JavascriptInterface fun sendMessage(message: String) {
@@ -95,7 +96,9 @@ class MainActivity : ComponentActivity() {
         }
         @JavascriptInterface fun startRecording() { runOnUiThread { startVoiceRecording() } }
         @JavascriptInterface fun stopAndSendVoice() { runOnUiThread { stopRecordingAndSend() } }
-        @JavascriptInterface fun playLastVoice() { runOnUiThread { playLastVoiceMessage() } }
+        @JavascriptInterface fun playLastVoice() { runOnUiThread { playLastVoiceMessage() }
+}
+    
     }
 
     private fun beginDiscoveryAndAdvertising() {
