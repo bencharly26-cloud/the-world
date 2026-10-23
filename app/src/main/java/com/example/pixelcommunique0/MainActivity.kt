@@ -1,6 +1,6 @@
 package com.example.pixelcommunique0
 
-import com.exemple.pixelcommunique0.R
+import com.example.pixelcommunique0.R
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
