@@ -23,5 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Nouvelle activité ajoutée pour séparer Recherche et Visibilité -->
+        <activity
+            android:name=".ActionsActivity"
+            android:exported="false" />
+
     </application>
 </manifest>
