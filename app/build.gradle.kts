@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pixelcommunique"
+    namespace = "com.example.pixelcommunique0"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.pixelcommunique"
+        applicationId = "com.example.pixelcommunique0"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
