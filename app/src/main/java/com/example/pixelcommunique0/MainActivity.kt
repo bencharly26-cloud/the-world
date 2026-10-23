@@ -2,7 +2,6 @@ package com.example.pixelcommunique0
 
 import com.example.pixelcommunique0.R
 import android.Manifest
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
@@ -12,7 +11,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -71,34 +69,14 @@ class MainActivity : ComponentActivity() {
         webView.addJavascriptInterface(AndroidBridge(), "Android")
         webView.loadUrl("file:///android_asset/index.html")
 
-        // Clic sur le bouton menu (les trois traits ☰) pour choisir l'action
-        val btnMenu = findViewById<Button>(R.id.btnMenu)
-        btnMenu?.setOnClickListener {
-            showActionDialog()
-        }
-
         val missing = neededPermissions().filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
         if (missing.isNotEmpty()) ActivityCompat.requestPermissions(this, missing.toTypedArray(), requestCode)
     }
 
-    private fun showActionDialog() {
-        val options = arrayOf("🔍 Chercher un appareil (Recherche)", "📡 Être visible (Visibilité)", "⏹️ Arrêter tout")
-        AlertDialog.Builder(this)
-            .setTitle("Pixel Communiqué - Connexion")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> startDiscoveryOnly()
-                    1 -> startAdvertisingOnly()
-                    2 -> stopDiscoveryAndAdvertising()
-                }
-            }
-            .show()
-    }
-
     inner class AndroidBridge {
-        @JavascriptInterface fun startScan() { runOnUiThread { startDiscoveryOnly() } }
+        @JavascriptInterface fun startScan() { runOnUiThread { beginDiscoveryAndAdvertising() } }
         @JavascriptInterface fun stopScan() { runOnUiThread { stopDiscoveryAndAdvertising() } }
         @JavascriptInterface fun sendMessage(message: String) {
             val clean = message.trim().take(3000)
@@ -120,34 +98,8 @@ class MainActivity : ComponentActivity() {
         @JavascriptInterface fun playLastVoice() { runOnUiThread { playLastVoiceMessage() } }
     }
 
-    private fun startDiscoveryOnly() {
-        stopDiscoveryAndAdvertising()
-        val missing = neededPermissions().filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (missing.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), requestCode)
-            js("systemMessage('Autorise les permissions Android, puis réessaie.')")
-            return
-        }
-
-        scanStarted = true
-        connectedEndpoints.clear()
-        js("scanState(true)")
-        val discovery = DiscoveryOptions.Builder().setStrategy(strategy).build()
-        nearby.startDiscovery(serviceId, discoveryCallback, discovery)
-            .addOnSuccessListener {
-                js("systemMessage('Recherche des appareils à proximité démarrée...')")
-            }
-            .addOnFailureListener {
-                scanStarted = false
-                js("scanState(false)")
-                js("systemMessage('La recherche a échoué.')")
-            }
-    }
-
-    private fun startAdvertisingOnly() {
-        stopDiscoveryAndAdvertising()
+    private fun beginDiscoveryAndAdvertising() {
+        if (scanStarted) return
         val missing = neededPermissions().filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
@@ -162,14 +114,15 @@ class MainActivity : ComponentActivity() {
         js("scanState(true)")
         val advertising = AdvertisingOptions.Builder().setStrategy(strategy).build()
         nearby.startAdvertising(Build.MODEL ?: "Android", serviceId, connectionLifecycle, advertising)
-            .addOnSuccessListener {
-                js("systemMessage('Visibilité activée (en attente de connexion)...')")
-            }
             .addOnFailureListener {
-                scanStarted = false
-                js("scanState(false)")
                 js("systemMessage('La visibilité de cet appareil a échoué.')")
             }
+        val discovery = DiscoveryOptions.Builder().setStrategy(strategy).build()
+        nearby.startDiscovery(serviceId, discoveryCallback, discovery)
+            .addOnFailureListener {
+                js("systemMessage('La recherche a échoué.')")
+            }
+        js("systemMessage('Recherche des appareils à proximité démarrée...')")
     }
 
     private fun stopDiscoveryAndAdvertising() {
@@ -179,7 +132,7 @@ class MainActivity : ComponentActivity() {
             nearby.stopDiscovery()
         } catch (_: Exception) {}
         js("scanState(false)")
-        js("systemMessage('Recherche/Visibilité arrêtée.')")
+        js("systemMessage('Recherche arrêtée.')")
     }
 
     private val discoveryCallback = object : EndpointDiscoveryCallback() {
@@ -277,7 +230,7 @@ class MainActivity : ComponentActivity() {
 
     private fun playLastVoiceMessage() {
         val file = lastVoiceFile ?: return
-        if (!file.exists()) requireNotNull(file)
+        if (!file.exists()) return
         try {
             player?.release()
             player = MediaPlayer().apply {
