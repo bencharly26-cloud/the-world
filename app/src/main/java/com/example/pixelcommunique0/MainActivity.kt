@@ -64,7 +64,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    val btnMenu = findViewById<Button>(R.id.btnMenu) btnMenu?.setOnClickListener { showActionDialog() }
+        
+        val btnMenu = findViewById<Button>(R.id.btnMenu)
+        btnMenu?.setOnClickListener { showActionDialog() }
         
         webView = findViewById(R.id.webView)
         webView.settings.javaScriptEnabled = true
