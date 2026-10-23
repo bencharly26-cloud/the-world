@@ -1,5 +1,6 @@
 package com.example.pixelcommunique0
 
+import android.widget.Button
 import com.example.pixelcommunique0.R
 import android.Manifest
 import android.app.AlertDialog
