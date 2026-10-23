@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
 class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private val nearby by lazy { Nearby.getConnectionsClient(this) }
-    private val serviceId = "com.example.pixelcommunique0.PIXEL"
+    private val serviceId = "com.exemple.pixelcommunique0.PIXEL"
     private val strategy = Strategy.P2P_CLUSTER
     private val connectedEndpoints = ConcurrentHashMap.newKeySet<String>()
     private val pendingFiles = ConcurrentHashMap<Long, android.net.Uri>()
