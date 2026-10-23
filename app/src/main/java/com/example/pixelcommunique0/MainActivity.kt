@@ -48,18 +48,22 @@ class MainActivity : ComponentActivity() {
     private var scanStarted = false
     private val requestCode = 713
 
-    private fun neededPermissions(): Array<String> {
-        val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
-        if (Build.VERSION.SDK_INT >= 31) {
-            permissions += Manifest.permission.BLUETOOTH_SCAN
-            permissions += Manifest.permission.BLUETOOTH_CONNECT
-            permissions += Manifest.permission.BLUETOOTH_ADVERTISE
-        } else {
-            permissions += Manifest.permission.ACCESS_FINE_LOCATION
-        }
-        if (Build.VERSION.SDK_INT >= 33) permissions += Manifest.permission.NEARBY_WIFI_DEVICES
-        return permissions.toTypedArray()
+   private fun neededPermissions(): Array<String> {
+    val permissions = mutableListOf(
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+    if (Build.VERSION.SDK_INT >= 31) {
+        permissions += Manifest.permission.BLUETOOTH_SCAN
+        permissions += Manifest.permission.BLUETOOTH_CONNECT
+        permissions += Manifest.permission.BLUETOOTH_ADVERTISE
     }
+    if (Build.VERSION.SDK_INT >= 33) {
+        permissions += Manifest.permission.NEARBY_WIFI_DEVICES
+    }
+    return permissions.toTypedArray()
+}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
