@@ -9,7 +9,7 @@
 body{background:#0b141a;color:#e9edef;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;display:flex;flex-direction:column;height:100dvh}
 .chat-header{padding:12px 16px;background:#202c33;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2f3b43;gap:8px}
 .header-title{font-size:16px;font-weight:600}
-.connect-btn{background:#005c4b;color:#e9edef;border:0;padding:8px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer}
+.connect-btn{background:#005c4b;color:#e9edef;border:0;padding:8px 14px;border-radius:20px;font-size:16px;font-weight:bold;cursor:pointer}
 .connect-btn.active{background:#ca8a04}.connect-btn.connected{background:#008069}
 .chat-container{flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;background-image:radial-gradient(#1f2c34 1px,transparent 1px);background-size:20px 20px}
 .message{max-width:85%;padding:10px 14px;border-radius:8px;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
@@ -22,15 +22,50 @@ body{background:#0b141a;color:#e9edef;font-family:-apple-system,BlinkMacSystemFo
 .action-btn{background:#00a884;color:white;border:0;border-radius:50%;width:42px;height:42px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
 .action-btn:disabled{opacity:.45}.mic-btn{background:transparent;color:#c4cdd2;font-size:20px}.mic-btn.recording{background:#b42318;color:white}
 .audio-btn{background:#00a884;color:white;border:0;border-radius:18px;padding:7px 12px;margin-top:7px;cursor:pointer}
+
+/* Style du menu déroulant personnalisé */
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 16px;
+    background: #233138;
+    border: 1px solid #2f3b43;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    z-index: 100;
+    overflow: hidden;
+}
+.menu-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: #e9edef;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+.menu-dropdown button:hover {
+    background: #182229;
+}
 </style>
 </head>
 <body>
-<header class="chat-header">
+<header class="chat-header" style="position:relative;">
   <span class="header-title">Pixel Communiqué</span>
-  <button class="connect-btn" id="phantomBtn">📡 Signal Fantôme</button>
+  <div>
+    <button class="connect-btn" id="phantomBtn">☰</button>
+    <div class="menu-dropdown" id="menuDropdown">
+      <button id="searchOption">🔍 Chercher un appareil</button>
+      <button id="advertiseOption">📡 Être visible (Visibilité)</button>
+      <button id="stopOption">⏹️ Arrêter tout</button>
+    </div>
+  </div>
 </header>
 <main class="chat-container" id="chatBox">
-  <div class="message received">Bienvenue. Appuie sur « Signal Fantôme » pour lancer la connexion[span_2](start_span)[span_2](end_span).</div>
+  <div class="message received">Bienvenue. Appuie sur « ☰ » pour choisir ton mode de connexion.</div>
 </main>
 <footer class="chat-input-area">
   <button class="action-btn mic-btn" id="micBtn" title="Enregistrer ou envoyer un vocal">🎤</button>
@@ -39,12 +74,17 @@ body{background:#0b141a;color:#e9edef;font-family:-apple-system,BlinkMacSystemFo
 </footer>
 <script>
 const phantomBtn=document.getElementById('phantomBtn');
+const menuDropdown=document.getElementById('menuDropdown');
+const searchOption=document.getElementById('searchOption');
+const advertiseOption=document.getElementById('advertiseOption');
+const stopOption=document.getElementById('stopOption');
+
 const chatBox=document.getElementById('chatBox');
 const msgInput=document.getElementById('msgInput');
 const sendBtn=document.getElementById('sendBtn');
 const micBtn=document.getElementById('micBtn');
-let isConnected=false,isScanning=false,isRecording=false;
 
+let isConnected=false,isScanning=false,isRecording=false;
 const isAndroidApp = typeof Android !== 'undefined';
 
 function appendMessage(text,type){
@@ -55,20 +95,24 @@ function appendMessage(text,type){
   chatBox.scrollTop=chatBox.scrollHeight;
 }
 function systemMessage(text){appendMessage(text,'system')}
-function scanState(on){
+
+function scanState(on, modeText){
   isScanning=on;
   if(!isConnected){
     phantomBtn.className='connect-btn'+(on?' active':'');
-    phantomBtn.textContent=on?'🔍 Recherche en cours…':'📡 Signal Fantôme';
+    phantomBtn.textContent='☰';
   }
+  if (modeText) systemMessage(modeText);
 }
+
 function connected(ok){
   isConnected=ok;
   msgInput.disabled=!ok;
   sendBtn.disabled=!ok;
   phantomBtn.className='connect-btn'+(ok?' connected':(isScanning?' active':''));
-  phantomBtn.textContent=ok?'🟢 Connecté':'📡 Signal Fantôme';
+  phantomBtn.textContent='☰';
 }
+
 function receiveMessage(text){appendMessage(text,'received')}
 function voiceSent(){appendMessage('🎤 Message vocal envoyé','sent')}
 function voiceReceived(){
@@ -93,23 +137,50 @@ function recordingChanged(on){
   micBtn.textContent=on?'■':'🎤';
 }
 
-phantomBtn.addEventListener('click',()=>{
-  if(isConnected){systemMessage('Tu es déjà connecté.');return}
-  if(!isScanning){
-    scanState(true);
-    if(isAndroidApp) {
-      Android.startScan();
-    } else {
-      systemMessage('Recherche simulée (Mode navigateur)...');
-      setTimeout(()=>{
-        scanState(false);
-        connected(true);
-        systemMessage('Connecté avec succès en mode test !');
-      }, 1200);
-    }
+// Gestion de l'affichage du menu déroulant ☰
+phantomBtn.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
+});
+
+// Fermer le menu si on clique ailleurs
+window.addEventListener('click', () => {
+  menuDropdown.style.display = 'none';
+});
+
+// Action 1 : Chercher
+searchOption.addEventListener('click', () => {
+  menuDropdown.style.display = 'none';
+  if(isAndroidApp) {
+    Android.startScan();
   } else {
-    if(isAndroidApp) Android.stopScan();
-    else { scanState(false); systemMessage('Recherche arrêtée.'); }
+    scanState(true, 'Recherche simulée...');
+    setTimeout(()=>{
+      scanState(false);
+      connected(true);
+      systemMessage('Connecté en mode recherche !');
+    }, 1200);
+  }
+});
+
+// Action 2 : Être visible (Advertising)
+advertiseOption.addEventListener('click', () => {
+  menuDropdown.style.display = 'none';
+  if(isAndroidApp) {
+    Android.startAdvertising(); // Assure-toi d'avoir cette passerelle ou startScan selon ton choix, ou gère via Android
+  } else {
+    systemMessage('Visibilité simulée...');
+  }
+});
+
+// Action 3 : Arrêter tout
+stopOption.addEventListener('click', () => {
+  menuDropdown.style.display = 'none';
+  if(isAndroidApp) {
+    Android.stopScan();
+  } else {
+    scanState(false, 'Recherche/Visibilité arrêtée.');
+    connected(false);
   }
 });
 
